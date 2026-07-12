@@ -55,12 +55,12 @@ export const barChartData: BarDatum[] = [
 ]
 
 export const lineChartData: LineDatum[] = [
-  { month: 'Ene', value: 11, note: 'Mes más frío del periodo.' },
-  { month: 'Feb', value: 13, note: 'Ligero aumento respecto a enero.' },
-  { month: 'Mar', value: 17, note: 'Inicio de temperaturas primaverales.' },
-  { month: 'Abr', value: 19, note: 'Máximas suaves durante el mes.' },
-  { month: 'May', value: 24, note: 'Ascenso claro antes del verano.' },
-  { month: 'Jun', value: 31, note: 'Primeras máximas veraniegas.' },
+  { month: 'Enero', value: 11, note: 'Mes más frío del periodo.' },
+  { month: 'Febrero', value: 13, note: 'Ligero aumento respecto a enero.' },
+  { month: 'Marzo', value: 17, note: 'Inicio de temperaturas primaverales.' },
+  { month: 'Abril', value: 19, note: 'Máximas suaves durante el mes.' },
+  { month: 'Mayo', value: 24, note: 'Ascenso claro antes del verano.' },
+  { month: 'Junio', value: 31, note: 'Primeras máximas veraniegas.' },
 ]
 
 export const donutChartData: DonutDatum[] = [
