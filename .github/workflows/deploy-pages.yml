@@ -1,0 +1,53 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10.34.5
+          cache: true
+          cache_dependency_path: examples/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: examples
+      - run: pnpm build
+        working-directory: examples
+      - uses: actions/configure-pages@v6
+        if: github.event_name != 'pull_request'
+      - uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request'
+        with:
+          path: examples/dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
