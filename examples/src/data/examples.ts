@@ -115,28 +115,24 @@ export const radialDashboardData: RadialStepsDatum[] = [
 ]
 
 export const barChartAccessibility: ChartAccessibilityContract = {
-  chartId: 'gasto-semanal-barras',
   title: 'Gasto semanal por categoría',
   longDescription:
     'Gráfico de barras que compara el gasto semanal en vivienda, alimentación, transporte y formación.',
 }
 
 export const lineChartAccessibility: ChartAccessibilityContract = {
-  chartId: 'temperatura-maxima-madrid',
   title: 'Temperatura máxima media en Madrid',
   longDescription:
     'Gráfico de líneas que muestra la temperatura máxima media mensual en Madrid de enero a junio.',
 }
 
 export const donutChartAccessibility: ChartAccessibilityContract = {
-  chartId: 'distribucion-ahorro-mensual',
   title: 'Distribución del ahorro mensual',
   longDescription:
     'Gráfico de anillo que reparte el ahorro mensual entre fondo de emergencia, viajes, equipamiento y formación.',
 }
 
 export const radialDashboardAccessibility: ChartAccessibilityContract = {
-  chartId: 'recuento-pasos-periodo',
   title: 'Recuento de pasos por periodo',
   longDescription:
     'Panel radial que muestra el progreso de pasos registrados frente al objetivo diario, semanal y mensual.',

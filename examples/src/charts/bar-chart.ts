@@ -27,7 +27,7 @@ export function renderBarChart(
   const { svg, node: svgNode } = createAccessibleSvg(
     width,
     height,
-    'block h-auto w-full min-w-[520px] outline-none',
+    'block h-auto w-full outline-none',
     metadata,
   )
 
@@ -94,8 +94,10 @@ export function renderBarChart(
 
   // Labels need a separate layer because SVG rects cannot contain text
   // Appending it after the bars keeps the labels visible above them
+  // Hidden from screen readers: the value is already in each bar's label
   svg
     .append('g')
+    .attr('aria-hidden', 'true')
     .selectAll<SVGTextElement, BarDatum>('text')
     .data(data)
     .join('text')

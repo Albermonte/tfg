@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/*
+  Axes and value labels are hidden from the screen reader, but they still catch
+  touches. Without this, a finger on a label like "1240 €" lands on something
+  the reader skips, so TalkBack only says "Webview" ("Vista web" on a Spanish
+  phone). With it, the touch goes
+  through to the chart underneath and TalkBack reads the chart description.
+*/
+svg [aria-hidden='true'] {
+  pointer-events: none;
+}

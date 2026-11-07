@@ -70,6 +70,6 @@ watch(() => props.chart, renderChart, { flush: 'post' })
       </h2>
     </header>
 
-    <div ref="host" class="overflow-x-auto px-4 pt-2 pb-1" />
+    <div ref="host" class="px-4 pt-2 pb-1" />
   </article>
 </template>

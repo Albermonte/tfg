@@ -28,7 +28,7 @@ export function renderRadialDashboard(
   const { svg, node: svgNode } = createAccessibleSvg(
     width,
     height,
-    'block h-auto w-full min-w-[520px] outline-none',
+    'block h-auto w-full outline-none',
     metadata,
   )
 
@@ -39,8 +39,10 @@ export function renderRadialDashboard(
   const arc = d3.arc<d3.DefaultArcObject>()
   const focusableArcs: SVGPathElement[] = []
 
+  // Summary repeats the arc labels, so it is hidden from screen readers
   const summaryLabel = svg
     .append('text')
+    .attr('aria-hidden', 'true')
     .attr('class', 'fill-gray-500 text-[14px]')
     .attr('x', centerX)
     .attr('y', summaryY)
@@ -48,6 +50,7 @@ export function renderRadialDashboard(
 
   const summaryValue = svg
     .append('text')
+    .attr('aria-hidden', 'true')
     .attr('class', 'fill-gray-900 text-[24px] font-bold')
     .attr('x', centerX)
     .attr('y', summaryY + 32)
@@ -55,6 +58,7 @@ export function renderRadialDashboard(
 
   const summaryProgress = svg
     .append('text')
+    .attr('aria-hidden', 'true')
     .attr('class', 'fill-gray-500 text-[14px]')
     .attr('x', centerX)
     .attr('y', summaryY + 60)
@@ -108,7 +112,8 @@ export function renderRadialDashboard(
         'aria-label',
         `${datum.label}: ${formatSteps(datum.amount)} registrados de ${formatSteps(datum.target)} previstos, ${formatPercent(completion)} completado. ${datum.note}`,
       )
-      .on('focus mouseenter click', () => updateSummary(datum))
+      // No click: TalkBack would say "Toca dos veces para activar", but there is nothing to activate
+      .on('focus mouseenter', () => updateSummary(datum))
       .node()
 
     if (progressNode) {

@@ -24,7 +24,7 @@ export function renderDonutChart(
   const { svg, node: svgNode } = createAccessibleSvg(
     width,
     height,
-    'block h-auto w-full min-w-[520px] outline-none',
+    'block h-auto w-full outline-none',
     metadata,
   )
 
@@ -43,9 +43,11 @@ export function renderDonutChart(
   // Move donut to center
   const group = svg.append('g').attr('transform', `translate(${centerX},${centerY})`)
   
+  // Center and legend repeat the slice labels, so they are hidden from screen readers
   // Percentage label
   const centerValue = svg
     .append('text')
+    .attr('aria-hidden', 'true')
     .attr('class', 'fill-gray-900 text-[26px] font-bold')
     .attr('x', centerX)
     .attr('y', centerY - 8)
@@ -54,6 +56,7 @@ export function renderDonutChart(
   // Category label
   const centerLabel = svg
     .append('text')
+    .attr('aria-hidden', 'true')
     .attr('class', 'fill-gray-500 text-[14px]')
     .attr('x', centerX)
     .attr('y', centerY + 16)
@@ -85,11 +88,12 @@ export function renderDonutChart(
       datum =>
         `${datum.data.label}: ${formatPercent(datum.data.value / 100)} del total de ahorro. ${datum.data.note}`,
     )
-    .on('focus mouseenter click', (_event, datum) => updateCenterLabel(datum.data))
+    // No click: TalkBack would say "Toca dos veces para activar", but there is nothing to activate
+    .on('focus mouseenter', (_event, datum) => updateCenterLabel(datum.data))
 
   enableHorizontalArrowKeyFocus(slices.nodes())
 
-  const legend = svg.append('g').attr('transform', 'translate(420,72)')
+  const legend = svg.append('g').attr('aria-hidden', 'true').attr('transform', 'translate(420,72)')
   const legendRows = legend
     .selectAll<SVGGElement, DonutDatum>('g')
     .data(data)

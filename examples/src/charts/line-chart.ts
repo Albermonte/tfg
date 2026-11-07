@@ -27,7 +27,7 @@ export function renderLineChart(
   const { svg, node: svgNode } = createAccessibleSvg(
     width,
     height,
-    'block h-auto w-full min-w-[520px] outline-none',
+    'block h-auto w-full outline-none',
     metadata,
   )
 
@@ -111,8 +111,10 @@ export function renderLineChart(
 
   enableHorizontalArrowKeyFocus(points.nodes())
 
+  // Hidden from screen readers: the value is already in each point's label
   svg
     .append('g')
+    .attr('aria-hidden', 'true')
     .selectAll<SVGTextElement, LineDatum>('text')
     .data(data)
     .join('text')
