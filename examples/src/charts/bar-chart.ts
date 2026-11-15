@@ -71,10 +71,6 @@ export function renderBarChart(
     .selectAll<SVGRectElement, BarDatum>('rect')
     .data(data)
     .join('rect')
-    .attr(
-      'class',
-      'cursor-pointer',
-    )
     // Put each bar in its horizontal slot
     .attr('x', datum => x(datum.category) ?? 0)
     // Scale the bar height to the datum value, and position it so the bottom of the bar sits on the x-axis

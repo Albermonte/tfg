@@ -94,10 +94,6 @@ export function renderLineChart(
     .selectAll<SVGCircleElement, LineDatum>('circle')
     .data(data)
     .join('circle')
-    .attr(
-      'class',
-      'cursor-pointer',
-    )
     .attr('cx', datum => x(datum.month) ?? 0)
     .attr('cy', datum => y(datum.value))
     // Circle radius

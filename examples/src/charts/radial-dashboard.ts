@@ -37,7 +37,7 @@ export function renderRadialDashboard(
 
   // Docs: https://d3js.org/d3-shape/arc
   const arc = d3.arc<d3.DefaultArcObject>()
-  const focusableArcs: SVGPathElement[] = []
+  const progressArcs: SVGPathElement[] = []
 
   // Summary repeats the arc labels, so it is hidden from screen readers
   const summaryLabel = svg
@@ -103,25 +103,21 @@ export function renderRadialDashboard(
     const progressNode = ringGroup
       .append('path')
       .attr('d', arc(progressDatum) ?? '')
-      .attr(
-        'class',
-        'cursor-pointer',
-      )
       .attr('fill', datum.color)
       .attr(
         'aria-label',
         `${datum.label}: ${formatSteps(datum.amount)} registrados de ${formatSteps(datum.target)} previstos, ${formatPercent(completion)} completado. ${datum.note}`,
       )
       // No click: TalkBack would say "Toca dos veces para activar", but there is nothing to activate
-      .on('focus mouseenter', () => updateSummary(datum))
+      .on('mouseenter', () => updateSummary(datum))
       .node()
 
     if (progressNode) {
-      focusableArcs.push(progressNode)
+      progressArcs.push(progressNode)
     }
   })
 
-  enableHorizontalArrowKeyFocus(focusableArcs)
+  enableHorizontalArrowKeyFocus(progressArcs)
 
   host.replaceChildren(svgNode)
 }

@@ -75,10 +75,6 @@ export function renderDonutChart(
     .selectAll<SVGPathElement, d3.PieArcDatum<DonutDatum>>('path')
     .data(pie(data))
     .join('path')
-    .attr(
-      'class',
-      'cursor-pointer',
-    )
     .attr('d', arc)
     .attr('fill', datum => datum.data.color)
     .attr('stroke', '#ffffff')
@@ -89,7 +85,7 @@ export function renderDonutChart(
         `${datum.data.label}: ${formatPercent(datum.data.value / 100)} del total de ahorro. ${datum.data.note}`,
     )
     // No click: TalkBack would say "Toca dos veces para activar", but there is nothing to activate
-    .on('focus mouseenter', (_event, datum) => updateCenterLabel(datum.data))
+    .on('mouseenter', (_event, datum) => updateCenterLabel(datum.data))
 
   enableHorizontalArrowKeyFocus(slices.nodes())
 

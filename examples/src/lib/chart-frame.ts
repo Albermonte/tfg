@@ -3,32 +3,17 @@ import * as d3 from 'd3'
 import type { ChartAccessibilityContract } from './accessibility'
 
 /**
- * Expose the data items as a list and move focus between them with the left and right arrow keys
+ * Expose the data items as a list, so screen readers announce "lista" and the item count
  * `listitem` replaces the implicit `graphics-symbol`, which TalkBack reads as "símbolo gráfico"
+ * No `tabindex`: focusable nodes count as controls in TalkBack's "Controles" navigation,
+ * and double tapping a data item does nothing
  * @param elements - The data items, all children of the same parent
  */
 export function enableHorizontalArrowKeyFocus<ElementType extends SVGElement>(
   elements: ElementType[],
 ): void {
   elements[0]?.parentElement?.setAttribute('role', 'list')
-  elements.forEach((element, index) => {
-    element.setAttribute('role', 'listitem')
-    element.setAttribute('tabindex', index === 0 ? '0' : '-1')
-    element.addEventListener('keydown', (event) => {
-      if (!(event instanceof KeyboardEvent) || !['ArrowLeft', 'ArrowRight'].includes(event.key)) {
-        return
-      }
-
-      event.preventDefault()
-
-      const direction = event.key === 'ArrowRight' ? 1 : -1
-      const nextIndex = (index + direction + elements.length) % elements.length
-
-      element.setAttribute('tabindex', '-1')
-      elements[nextIndex]?.setAttribute('tabindex', '0')
-      elements[nextIndex]?.focus()
-    })
-  })
+  elements.forEach((element) => element.setAttribute('role', 'listitem'))
 }
 
 /**
@@ -61,8 +46,6 @@ export function createAccessibleSvg(
     .attr('height', height)
     .append('xhtml:p')
     .attr('class', 'm-0 h-full text-transparent')
-    // TalkBack touch exploration skips non-focusable chart content
-    .attr('tabindex', '-1')
     .text(metadata.longDescription)
 
   return {
