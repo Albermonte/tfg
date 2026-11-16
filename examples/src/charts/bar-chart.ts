@@ -4,10 +4,9 @@ import type { BarDatum } from '../data/examples'
 import type { ChartAccessibilityContract } from '../lib/accessibility'
 import {
   createAccessibleSvg,
-  enableHorizontalArrowKeyFocus,
   styleAxis,
 } from '../lib/chart-frame'
-import { formatEuro } from '../lib/format'
+import { formatEuro, formatPercent } from '../lib/format'
 
 interface BarChartOptions {
   data: BarDatum[]
@@ -64,6 +63,8 @@ export function renderBarChart(
     .call(d3.axisBottom(x))
   styleAxis(xAxis)
 
+  const barCenterX = (datum: BarDatum) => (x(datum.category) ?? 0) + x.bandwidth() / 2
+
   // Creates one SVG rect for each datum
   // Docs: https://d3js.org/d3-selection/joining
   const bars = svg
@@ -81,12 +82,26 @@ export function renderBarChart(
     .attr('rx', 12)
     .attr('fill', datum => datum.color)
     .attr(
+      'class',
+      'cursor-pointer outline-none focus-visible:stroke-gray-900 focus-visible:stroke-3',
+    )
+    // Bars open the breakdown, so they are buttons: reachable with Tab and listed as controls by TalkBack
+    .attr('role', 'button')
+    .attr('tabindex', 0)
+    .attr('aria-expanded', 'false')
+    .attr(
       'aria-label',
       datum =>
         `${datum.category}: ${formatEuro(datum.value)} gastados esta semana. ${datum.note}`,
     )
-
-  enableHorizontalArrowKeyFocus(bars.nodes())
+    .on('click', (_event, datum) => showTooltip(datum))
+    .on('keydown', (event: KeyboardEvent, datum) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        // Space would scroll the page otherwise
+        event.preventDefault()
+        showTooltip(datum)
+      }
+    })
 
   // Labels need a separate layer because SVG rects cannot contain text
   // Appending it after the bars keeps the labels visible above them
@@ -98,10 +113,99 @@ export function renderBarChart(
     .data(data)
     .join('text')
     .attr('class', 'fill-gray-900 text-sm font-bold')
-    .attr('x', datum => (x(datum.category) ?? 0) + x.bandwidth() / 2)
+    .attr('x', barCenterX)
     .attr('y', datum => y(datum.value) - 10)
     .attr('text-anchor', 'middle')
     .text(datum => formatEuro(datum.value))
 
-  host.replaceChildren(svgNode)
+  // The tooltip is HTML laid over the SVG, so it can hold a real button and a list
+  // Positions are percentages of the viewBox, so they follow the SVG when it scales
+  const wrapper = d3.create('div').attr('class', 'relative')
+  wrapper.append(() => svgNode)
+
+  const tooltip = wrapper
+    .append('div')
+    // A labelled group, not `role="dialog"`: TalkBack treats a dialog as a pane
+    // and reads all of it again on every change inside it
+    .attr('role', 'group')
+    .attr('class', 'absolute z-10 hidden w-60 max-w-[90%] rounded-2xl border border-gray-200 bg-white p-4 shadow-lg')
+    .on('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        hideTooltip()
+      }
+    })
+
+  // `showTooltip` rebuilds the content, so closing only hides it
+  function hideTooltip(): void {
+    tooltip.classed('hidden', true)
+    // The expanded bar opened the tooltip, so focus returns to it
+    bars.filter('[aria-expanded="true"]').node()?.focus()
+    bars.attr('aria-expanded', 'false')
+  }
+
+  function showTooltip(datum: BarDatum): void {
+    const anchorX = barCenterX(datum) / width
+    const anchorY = y(datum.value) / height
+
+    // Keep the tooltip inside the chart: align to the bar's edge near the sides,
+    // and open downward from tall bars, upward from short ones
+    const translateX = anchorX < 0.33 ? '-20%' : anchorX > 0.66 ? '-80%' : '-50%'
+    const translateY = anchorY < 0.5 ? '8px' : 'calc(-100% - 8px)'
+
+    // Build the content while hidden and show it in one step, so the screen reader sees a single change
+    tooltip
+      .classed('hidden', true)
+      .attr('aria-label', `Desglose de ${datum.category}`)
+      .style('left', `${anchorX * 100}%`)
+      .style('top', `${anchorY * 100}%`)
+      .style('transform', `translate(${translateX}, ${translateY})`)
+      .selectChildren()
+      .remove()
+
+    const header = tooltip.append('div').attr('class', 'mb-2 flex items-start justify-between gap-2')
+    const heading = header.append('div')
+    heading.append('p').attr('class', 'm-0 font-bold text-gray-900').text(datum.category)
+    heading
+      .append('p')
+      .attr('class', 'm-0 text-sm text-gray-500')
+      .text(`${formatEuro(datum.value)} esta semana`)
+
+    const closeButton = header
+      .append('button')
+      .attr('type', 'button')
+      .attr('aria-label', 'Cerrar desglose')
+      .attr(
+        'class',
+        'flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-lg leading-none text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-gray-900',
+      )
+      .text('×')
+      .on('click', hideTooltip)
+
+    const items = tooltip
+      .append('ul')
+      .attr('class', 'm-0 flex list-none flex-col gap-1.5 p-0')
+      .selectAll('li')
+      .data(datum.breakdown)
+      .join('li')
+      .attr('class', 'flex items-center gap-2 text-sm')
+
+    items
+      .append('span')
+      .attr('aria-hidden', 'true')
+      .attr('class', 'size-2.5 shrink-0 rounded-full')
+      .style('background-color', datum.color)
+    items.append('span').attr('class', 'flex-1 text-gray-700').text(item => item.label)
+    items
+      .append('span')
+      .attr('class', 'font-bold text-gray-900')
+      .text(item => `${formatEuro(item.value)} (${formatPercent(item.value / datum.value)})`)
+
+    tooltip.classed('hidden', false)
+    bars.attr('aria-expanded', item => String(item === datum))
+
+    // Move focus into the tooltip so keyboard and screen reader users land on it
+    closeButton.node()?.focus()
+  }
+
+  host.replaceChildren(wrapper.node() as HTMLDivElement)
 }

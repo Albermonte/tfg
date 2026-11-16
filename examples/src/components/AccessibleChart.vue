@@ -62,7 +62,7 @@ watch(() => props.chart, renderChart, { flush: 'post' })
 
 <template>
   <article
-    class="flex min-h-full flex-col overflow-hidden rounded-4xl bg-white shadow-black border border-gray-200"
+    class="flex min-h-full flex-col rounded-4xl bg-white shadow-black border border-gray-200"
   >
     <header class="px-5.5 pt-5 pb-2.5">
       <h2 class="m-0 leading-snug font-bold">

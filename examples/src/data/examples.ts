@@ -5,9 +5,16 @@ interface ChartDatumBase {
   note: string
 }
 
+export interface ExpenseItem {
+  label: string
+  value: number
+}
+
 export interface BarDatum extends ChartDatumBase {
   category: string
   value: number
+  // Where the category's money went; values add up to `value`
+  breakdown: ExpenseItem[]
 }
 
 export interface LineDatum {
@@ -33,24 +40,44 @@ export const barChartData: BarDatum[] = [
     value: 1240,
     color: '#af1e69',
     note: 'Alquiler, suministros y seguros.',
+    breakdown: [
+      { label: 'Alquiler', value: 950 },
+      { label: 'Suministros', value: 210 },
+      { label: 'Seguro del hogar', value: 80 },
+    ],
   },
   {
     category: 'Alimentación',
     value: 520,
     color: '#16a34a',
     note: 'Compra semanal y comidas compartidas.',
+    breakdown: [
+      { label: 'Supermercado', value: 340 },
+      { label: 'Restaurantes', value: 120 },
+      { label: 'Mercado local', value: 60 },
+    ],
   },
   {
     category: 'Transporte',
     value: 310,
     color: '#ea580c',
     note: 'Transporte público, combustible y mantenimiento.',
+    breakdown: [
+      { label: 'Combustible', value: 150 },
+      { label: 'Transporte público', value: 90 },
+      { label: 'Mantenimiento', value: 70 },
+    ],
   },
   {
     category: 'Formación',
     value: 240,
     color: '#7c3aed',
     note: 'Cursos, libros y herramientas.',
+    breakdown: [
+      { label: 'Cursos', value: 150 },
+      { label: 'Libros', value: 60 },
+      { label: 'Herramientas', value: 30 },
+    ],
   },
 ]
 
